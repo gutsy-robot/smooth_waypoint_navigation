@@ -75,6 +75,8 @@
     <arg name="initial_pose_y" value="$(arg initial_pose_y)"/>
     <arg name="initial_pose_a" value="$(arg initial_pose_a)"/>
   </include>
+  <node name="waypoint_publisher" pkg="turtlebot_smooth_navigation" type="waypoint_nav.py"/>
+  <node name="velocity_scaler" pkg="turtlebot_smooth_navigation" type="velocity_scaler.py"/>
 
   <!--  **************** Visualisation ****************  -->
   <node name="rviz" pkg="rviz" type="rviz" args="-d $(find turtlebot_stage)/rviz/robot_navigation.rviz">

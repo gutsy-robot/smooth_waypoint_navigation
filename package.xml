@@ -1,20 +1,33 @@
 <?xml version="1.0"?>
 <package>
-  <name>turtlebot_stage</name>
+  <name>turtlebot_smooth_navigation</name>
   <version>2.2.2</version>
   <description>
-    Stage version of turtlebot simulation. Convenient to test 2D-navigation related stuffs
+    Smooth Waypoint navigation using move_base action interface
   </description>
 
-  <maintainer email="jihoonl@yujinrobot.com">Jihoon Lee</maintainer>
-  <author email="jorge@yujinrobot.com">Jorge Santos</author>
+  <maintainer email="agrawalsiddharth12@gmail.com">Siddharth Agrawal</maintainer>
+  <author email="agrawalsiddharth12@gmail.com">Siddharth Agrawal</author>
   <license>BSD</license>
 
   <url type="website">http://wiki.ros.org/turtlebot_stage</url>
   <url type="repository">https://github.com/turtlebot/turtlebot_simulator</url>
-  <url type="bugtracker">https://github.com/turtlebot/turtlebot_simulator/issues</url>
 
   <buildtool_depend>catkin</buildtool_depend>
+  <build_depend>rospy</build_depend>
+  <build_depend>actionlib</build_depend>
+  <build_depend>actionlib_msgs</build_depend>
+  <build_depend>geometry_msgs</build_depend>
+  <build_depend>nav_msgs</build_depend>
+  <build_depend>move_base_msgs</build_depend>
+
+  <run_depend>rospy</run_depend>
+  <run_depend>actionlib</run_depend>
+  <run_depend>actionlib_msgs</run_depend>  
+  <run_depend>geometry_msgs</run_depend>
+  <run_depend>nav_msgs</run_depend>
+  <run_depend>move_base_msgs</run_depend>
+ 
   <run_depend>stage_ros</run_depend>
   <run_depend>navigation</run_depend>
   <run_depend>turtlebot_bringup</run_depend>

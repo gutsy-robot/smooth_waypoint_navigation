@@ -7,68 +7,65 @@ from geometry_msgs.msg import Pose, PoseWithCovarianceStamped
 from nav_msgs.msg import Path 
 from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
 from actionlib_msgs.msg import *
+import math
 
 
 
 class WayPointNav(object):
 	def __init__(self):
 		rospy.loginfo("Initialising parameters....")
-		self.point_pub = rospy.Publisher(
-            '/nav_points', PointStamped, queue_size=1)
-		self.waypoints = None
+		self.waypoints_x = [9.0,9.0,1.0]
+		self.waypoints_y = [1.0,5.0,9.0]
 		self.current_goal_number = 0
-		self.total_waypoints = 0
+		self.total_waypoints = 3
+		self.is_first_waypoint_sent = False
+		self.waypoint_cleared_threshold = 1.0
+		self.last_amcl_pose = None
+		self.amcl_pose_sub = rospy.Subscriber('/amcl_pose', PoseWithCovarianceStamped, self.amcl_cb, queue_size=1)
 		self.move_base = actionlib.SimpleActionClient("move_base", MoveBaseAction)
 		rospy.loginfo("wait for the action server to come up")
 	#allow up to 5 seconds for the action server to come up
 		self.move_base.wait_for_server(rospy.Duration(5))
 		#self.create_waypoints()
 		rospy.loginfo("Waypoints created..")
-		rospy.sleep(4.0)
+		rospy.sleep(7.0)
 
+	def amcl_cb(self,data):
+		self.last_amcl_pose = data.pose.pose.position
 
-	def create_waypoints(self):
-		for i in range(0,3):
-			waypoint = PointStamped()
-			waypoint.header.frame_id = "map"
-			waypoint.point. x = i
-			self.waypoints[i] = waypoint
+	def getDistance(self):
+		return math.sqrt((self.last_amcl_pose.x-self.waypoints_x[self.current_goal_number-1])**2 +(self.last_amcl_pose.y-self.waypoints_y[self.current_goal_number-1])**2)
 
-		self.total_waypoints =3 
 
 
 	def do_work(self):
 		#self.point_pub.publish(waypoints[current_goal_number])
-		goal = MoveBaseGoal()
-		goal.target_pose.header.frame_id = 'map'
-		goal.target_pose.header.stamp = rospy.Time.now()
-		goal.target_pose.pose.position.x = 4.0
-		goal.target_pose.pose.position.y = -4.0
-		goal.target_pose.pose.orientation.w = 1.0 #go forward
+		if(self.is_first_waypoint_sent == False):
+			rospy.loginfo("Sending first goal")
+			goal = MoveBaseGoal()
+			goal.target_pose.header.frame_id = 'map'
+			goal.target_pose.header.stamp = rospy.Time.now()
+			goal.target_pose.pose.position.x = self.waypoints_x[self.current_goal_number]
+			goal.target_pose.pose.position.y = self.waypoints_y[self.current_goal_number]
+			goal.target_pose.pose.orientation.w = 1.0 #go forward
+			self.move_base.send_goal(goal)
+			self.current_goal_number +=1
+			self.is_first_waypoint_sent = True
+			rospy.loginfo("First goal sent...")
 
-	
-        	self.move_base.send_goal(goal)
+		else:
+			if(self.getDistance() < self.waypoint_cleared_threshold and self.current_goal_number < self.total_waypoints):
+				rospy.loginfo("Sending next goal...")
+				goal = MoveBaseGoal()
+				goal.target_pose.header.frame_id = 'map'
+				goal.target_pose.header.stamp = rospy.Time.now()
+				goal.target_pose.pose.position.x = self.waypoints_x[self.current_goal_number]
+				goal.target_pose.pose.position.y = self.waypoints_y[self.current_goal_number]
+				goal.target_pose.pose.orientation.w = 1.0 #go forward
+				self.move_base.send_goal(goal)
+				self.current_goal_number +=1
+				rospy.loginfo("goal sent...")
 
-	#allow TurtleBot up to 60 seconds to complete task
-		success = self.move_base.wait_for_result(rospy.Duration(60)) 
-
-
-		if not success:
-                	self.move_base.cancel_goal()
-                	rospy.loginfo("The base failed to move the waypoint")
-                	self.current_goal_number += 1
-    		else:
-		# We made it!
-			state = self.move_base.get_state()
-			if state == GoalStatus.SUCCEEDED:
-		    		rospy.loginfo("Hooray, the base moved to the waypoint")
-		    		'''
-		    		if(self.current_goal_number <= self.total_waypoints -1):
-		    			self.current_goal_number +=1 
-		    		else:
-		    			rospy.loginfo("all waypoints travelled..")
-
-					'''
 
 
 

@@ -30,12 +30,11 @@ class VelocityScaler(object):
 		self.move_base_goal_sub = rospy.Subscriber('/move_base/goal', MoveBaseActionGoal, self.move_base_goal_cb, queue_size=1)
 
 		#How far from the goal we want to throttle the velocity.
-		self.distance_threshold_throttling = 2.0
+		self.distance_threshold_throttling = 0.4
 		self.last_move_base_vel = None		#last Twist msg from move_base
 		self.last_amcl_pose = None			#current amcl_pose
 		self.move_base_goal = None			#current move_base_goal
 		self.is_last_goal_reached = False	
-		#self.distance_from_goal = 10000		#initialised at a random high value
 		rospy.loginfo("Velocity scaler objects initialised...")
 		rospy.sleep(5.0)
 		rospy.loginfo("Ready to receive velocity commands now..")
@@ -60,6 +59,8 @@ class VelocityScaler(object):
 			if(self.getDistance() > self.distance_threshold_throttling):
 				self.scaled_vel_pub.publish(self.last_move_base_vel)
 			else:
+				#self.last_move_base_vel.linear.x = 2*self.last_move_base_vel.linear.x
+				#self.last_move_base_vel.linear.y = 2*self.last_move_base_vel.linear.y
 				self.scaled_vel_pub.publish(self.last_move_base_vel)
 				rospy.loginfo("Velocity being throttled..")
 

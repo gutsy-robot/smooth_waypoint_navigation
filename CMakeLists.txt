@@ -1,11 +1,28 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(turtlebot_stage)
+project(turtlebot_smooth_navigation)
 
-find_package(catkin REQUIRED)
+find_package(catkin REQUIRED
+
+			rospy
+			geometry_msgs
+			move_base_msgs
+			actionlib
+			actionlib_msgs
+			nav_msgs
+
+			)
 
 catkin_package()
 
 catkin_add_env_hooks(25.turtlebot-stage SHELLS sh DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/env-hooks)
+
+
+install(PROGRAMS
+   scripts/velocity_scaler.py
+   scripts/waypoint_nav.py
+   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+ )
+
 
 install(DIRECTORY launch 
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
